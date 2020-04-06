@@ -1,0 +1,32 @@
+<html>
+<body>
+  <h1>vim</h1>
+  <p>
+    I love vim.
+    I don't know why and I'm not going to try to convince <i>you</i> to love it.
+  </p>
+  <h2>My gvimrc file for windows</h2>
+  <pre>
+    set expandtab           " tabs to spaces
+    set shiftwidth=3        " four spaces for tabs
+    set softtabstop=3       " columns for a tab in insert mode
+    set autoindent          " indent to same level
+    set number              " line numbers
+    set colorcolumn=73      " Add line in column 81
+    set hlsearch            " highlight searches
+    set incsearch           " start highlighting in search immediately
+    set wrap                " wrap text
+    syntax on               " Turn on syntax highlighting
+    set showmatch           " Show matching braces
+    set linebreak           " Wrap at words
+    colorscheme elflord     " Common dark colorscheme
+    set nobackup
+    set nowritebackup
+    set noundofile
+    
+    " For makefiles, require tabs and not spaces
+    autocmd FileType make set noexpandtab
+    autocmd FileType make set tabstop=3
+  </pre>
+</body>
+</html>
