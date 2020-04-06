@@ -5,7 +5,15 @@
     I love vim.
     I don't know why and I'm not going to try to convince <i>you</i> to love it.
   </p>
-  <h2>My gvimrc file for windows</h2>
+  <h2>vim settings</h2>
+  <p>
+    To change vim settings, you need to change the vimrc file.
+    On Linux, this is at: ~/.vimrc.
+    On Windows, this is at: C:\Users\<username>\_vimrc.
+    I also use gvim a lot which is vim with a gui.
+    After all a mouse is pretty useful.
+    Settings for gvim are found in the gvimrc file in the same location as the vimrc file.
+  <h2>My vimrc file for all platforms</h2>
   <pre>
     set expandtab           " tabs to spaces
     set shiftwidth=3        " four spaces for tabs
@@ -20,13 +28,19 @@
     set showmatch           " Show matching braces
     set linebreak           " Wrap at words
     colorscheme elflord     " Common dark colorscheme
-    set nobackup
-    set nowritebackup
-    set noundofile
     
     " For makefiles, require tabs and not spaces
     autocmd FileType make set noexpandtab
     autocmd FileType make set tabstop=3
+  </pre>
+  <h2>My gvimrc file for Windows</h2>
+  <pre>
+    set nobackup              " Turn off backups after quit
+    set nowritebackup         " Turn off backups during edit
+    set noundofile            " Turn off persistent undo
+    set lines=45 columns=90   " Number of lines and columns (used on linux too)
+    set guifont=Consolas:h11  " Font
+    set bs=2                  " Backspace behavior needed on Windows
   </pre>
 </body>
 </html>
