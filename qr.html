@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Least Squares With QR</title>
+  <title>Least Squares and QR Decomposition</title>
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script id="MathJax-script" async
           src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js">
@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="main.css">
 </head>
 <body>
-   <h1>Solving the linear least squares problem with QR decomposition</h1>
+   <h1>Least Squares and QR Decomposition - In Progress of Writing</h1>
    <h2>What is the linear least squares problem?</h2>
    <p>
    The linear least squares problem is to find a vector \(x\) of size \(n\) that minimizes \(||Ax-b||_2^2\), where \(b\) is a given vector of size \(m\) and \(A\) is a given \(m \times n\) matrix of full rank with \(m > n\).
@@ -89,27 +89,74 @@
 
 
 
-   <h2>Older content</h2>
+   <h2>The QR decomposition</h2>
    <p>
-   The QR decomposition of a matrix \(A\) is \(A = QR\) where Q is an orthogonal matrix and R is an upper triangular matrix.
-   If A contains imaginary numbers then Q is Hermitian.
+   The QR decomposition of a matrix \(A \in \mathbb{R}^{m \times n}\) is \(A = QR\) where \(Q \in \mathbb{R}^{m \times m}\) is an orthogonal matrix and \(R \in \mathbb{R}^{m \times n}\) is an upper triangular matrix.
+   If A contains imaginary numbers then Q is unitary.
+   For the case we care about, \(m > n\), R has the form
+   \begin{equation}
+   \begin{pmatrix}
+   R_1 \\
+   R_2
+   \end{pmatrix} = 
+   \begin{pmatrix}
+   R_1 \\
+   0
+   \end{pmatrix}
+   \end{equation}
+   where R_1 is n by n and R_2 is m-n by n zero matrix.
    </p>
-   <h2>Why use a QR Decomposition</h2>
-   <p>
-   The QR decomposition is uniquely suited to solving linear least squares problems.
-   This problem is to find a vector x minimizing \(||Ax-b||_2\) where A is an m by n matrix of full rank where m &gt; n.
-   </p>
-   <p>
-   Many times in linear algebra, you learn to solve this problem by multiplying by A^T to get the square linear problem A^T A = b which can then be solved via some other method (like Cholesky decomposition).
-   Why shouldn't you solve the problem like this?
-   This squares the condition number of the problem.
-   However, using the QR decomposition method, does not change the condition number of the problem.
+   <p>Some notes:
+   <ul>
+      <li>Q orthogonal means \(Q^T Q = Q Q^T = I\).</li>
+      <li>Q unitary means \(Q^* Q = Q Q^* = I, \quad Q^* = \bar{Q}^T\).</li>
+   </ul>
    </p>
    <h3>Solving the least squares problem with QR decomposition</h3>
    <p>
+   The nice thing about an orthogonal matrix is it can move in and out of the 2 norm.
+   Specifically, for any vector v,
+   \begin{equation}
+   ||Qv||_2 = ||Q|| \; ||v||_2 = ||v||_2.
+   \end{equation}
+   Proof:
+   \begin{equation}
+   ||Qv||_2 \leq ||Q|| \; ||v||_2 = ||v||_2.
+   \end{equation}
+   \begin{equation}
+   ||v||_2 = ||Q^T Q v||_2 \leq ||Q^T|| \; ||Qv||_2 = ||Qv||_2.
+   \end{equation}
+   QED
+
+   <p>
+   Now for the method of solving the least squares problem.
    \begin{align}||Ax - b||_2 &= ||QRx - b||_2 \\
    &= ||Q^T Q Rx - Q^Tb||_2 \\
    &= ||Rx - Q^Tb||_2 \end{align}
+   To minimize the last expression, write \(\tilde{b} = Q^T b\) and minimize
+   \begin{equation}
+   ||Rx - \tilde{b}||_2^2.
+   \end{equation}
+   Using the splitting for R given earlier, we have
+   \begin{equation}
+   \begin{pmatrix}
+   R_1 \\ 0
+   \end{pmatrix}
+   x - 
+   \begin{pmatrix}
+   \tilde{b}_1 \\ \tilde{b}_2
+   \end{pmatrix}
+   \end{equation}
+   which means we want to minimize
+   \begin{equation}
+   ||R_1 x - \tilde{b}_1||_2^2 + ||\tilde{b}_2||_2^2.
+   \end{equation}
+   We can make the first norm zero by solving the square triangular system.
+   The second norm cannot be changed and is the error.
+   </p>
+   <p>
+   One implementation detail about this is that for a tall skinny matrix, one can perform a <em>skinny</em> QR decomposition.
+   This is given by A = QR where Q is m by n (tall and skinny) and R is n by n (a small square matrix.
    </p>
 </body>
 </html>
