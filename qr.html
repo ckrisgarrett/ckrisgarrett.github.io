@@ -1,10 +1,115 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
 <head>
-  <title>QR Decomposition</title>
+  <meta charset="utf-8">
+  <title>Least Squares With QR</title>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async
+          src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js">
+  </script>
+  <link rel="stylesheet" href="main.css">
 </head>
 <body>
-  <h1>QR Decomposition</h1>
-  <p>The QR decomposition takes a matrix A and decomposes it into an orthogonal matrix Q and an upper triangular matrix R: A = QR</p>
+   <h1>Solving the linear least squares problem with QR decomposition</h1>
+   <h2>What is the linear least squares problem?</h2>
+   <p>
+   The linear least squares problem is to find a vector \(x\) of size \(n\) that minimizes \(||Ax-b||_2^2\), where \(b\) is a given vector of size \(m\) and \(A\) is a given \(m \times n\) matrix of full rank with \(m > n\).
+   </p>
+   <p>
+   Some notes:
+   <ul>
+      <li>\(||v||_2^2 = v_1^2 + v_2^2 + \ldots + v_n^2\) for a vector \(v\), or for the complex case \(||v||_2^2 = v_1 \bar{v}_1 + v_2 \bar{v}_2 + \ldots + v_n \bar{v}_n\).
+      <li>Entries of A and b can be real or complex.</li>
+      <li>\(m > n\) means A is a tall skinny matrix, x is a short vector, and b is a tall vector.</li>
+      <li>Hence, there are too few unknowns in x to solve Ax = b, so we have to settle for getting as close as possible.  Hence the minimization problem.</li>
+      <li>A is of full rank means all the columns of A are linearly independent.  The purpose of this is to have only one solution to the problem.</li>
+   </ul>
+   <p>
+   <h3><em>Example</em></h3>
+   <p>
+   An example of a linear least squares problem is a polynomial fit (regression) problem.
+   Suppose you have 100 (x,y) coordinates that are suppose to fit closely to a quadratic.
+   Then you want to find a quadratic \(y = a_0 + a_1 x + a_2 x^2\) that closely fits the coordinates.
+   So you are trying to find coefficients \(a_0, a_1, a_2\) such that 
+   \begin{align}
+   y_1 &\approx a_0 + a_1 x_1 + a_2 x_1^2 \\
+   y_2 &\approx a_0 + a_1 x_2 + a_2 x_2^2 \\
+   \vdots \\
+   y_{100} &\approx a_0 + a_1 x_{100} + a_2 x_{100}^2.
+   \end{align}
+   The linear least squares problem is to find the coefficients \(a_0, a_1, a_2\) that minimize 
+   \begin{equation}
+   (a_0 + a_1 x_1 + a_2 x_1^2 - y_1)^2 + \ldots + (a_0 + a_1 x_{100} + a_2 x_{100}^2 - y_{100})^2.
+   \end{equation}
+   If you form the matrix and vectors
+   \begin{equation}
+   A = \begin{pmatrix}
+   1 & x_1 & x_1^2 \\
+   1 & x_2 & x_2^2 \\
+   \vdots & \vdots & \vdots \\
+   1 & x_{100} & x_{100}^2
+   \end{pmatrix}, \qquad
+   x = \begin{pmatrix}
+   a_0 \\ a_1 \\ a_2
+   \end{pmatrix}, \qquad
+   b = \begin{pmatrix}
+   y_1 \\ y_2 \\ \vdots \\ y_{100}
+   \end{pmatrix}
+   \end{equation}
+   you get the equivalent problem
+   \begin{equation}
+   \min_{x} ||Ax - b||_2^2.
+   \end{equation}
+   </p>
+
+   <h2>The normal equations</h2>
+   <p>
+   One multivariable calculus technique to solve the minimization is to take the partial derivative with respect to \(x_1, x_2, \ldots, x_n\), set all the equations to zero, and solve for \(x_1, x_2, \ldots, x_n\).
+   Writing the result in matrix form leads to the what is called the normal equations
+   \begin{equation}
+   A^T A x = A^T b.
+   \end{equation}
+   The nice thing about this system is that it's a small \(n \times n\) matrix system that can be solved.
+   The problem with this formulation is that it squares the condition number of the problem.
+   </p>
+   <p>
+   Briefly, the condition number is the largest eigenvalue in absolute value divided by the smallest eigenvalue in absolute value.
+   It tells you how numerically solvable the problem is.
+   A big condition number means the problem is difficult to solve numerically.
+   Squaring a condition number can make a problem impossible to solve in some cases.
+   </p>
+   <p>
+   One way to prove the condition number is squared is to take the singular value decomposition: \(A = U \Sigma V^T\).
+   Then 
+   \begin{equation}
+   A^T A = V^T \Sigma^T \Sigma V,
+   \end{equation}
+   which shows the singular values have been squared and hence the condition number is squared.
+   </p>
+
+
+
+   <h2>Older content</h2>
+   <p>
+   The QR decomposition of a matrix \(A\) is \(A = QR\) where Q is an orthogonal matrix and R is an upper triangular matrix.
+   If A contains imaginary numbers then Q is Hermitian.
+   </p>
+   <h2>Why use a QR Decomposition</h2>
+   <p>
+   The QR decomposition is uniquely suited to solving linear least squares problems.
+   This problem is to find a vector x minimizing \(||Ax-b||_2\) where A is an m by n matrix of full rank where m &gt; n.
+   </p>
+   <p>
+   Many times in linear algebra, you learn to solve this problem by multiplying by A^T to get the square linear problem A^T A = b which can then be solved via some other method (like Cholesky decomposition).
+   Why shouldn't you solve the problem like this?
+   This squares the condition number of the problem.
+   However, using the QR decomposition method, does not change the condition number of the problem.
+   </p>
+   <h3>Solving the least squares problem with QR decomposition</h3>
+   <p>
+   \begin{align}||Ax - b||_2 &= ||QRx - b||_2 \\
+   &= ||Q^T Q Rx - Q^Tb||_2 \\
+   &= ||Rx - Q^Tb||_2 \end{align}
+   </p>
 </body>
 </html>
