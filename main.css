@@ -1,6 +1,7 @@
 body {
    font-family: sans-serif;
-   max-width: 30em;
+   max-width: 50em;
+   margin: auto;
 }
 
 img {
@@ -8,5 +9,9 @@ img {
 }
 
 h2 {
-   border-bottom: 1px solid black;
+   border-bottom: 1px solid gray;
+}
+
+h1 {
+   font-family: serif;
 }

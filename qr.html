@@ -11,21 +11,31 @@
    <link rel="stylesheet" href="main.css">
 </head>
 <body>
-   <h1>Least Squares and QR Decomposition - In Progress of Writing</h1>
+   <h1>Least Squares and QR Decomposition</h1>
+   <p>
+   This small article describes how to solve the linear least squares problem using QR decomposition and why you should use QR decomposition as opposed to the normal equations.
+   </p>
+
+
    <h2>What is the linear least squares problem?</h2>
    <p>
-   The linear least squares problem is to find a vector \(x\) of size \(n\) that minimizes \(||Ax-b||_2^2\), where \(b\) is a given vector of size \(m\) and \(A\) is a given \(m \times n\) matrix of full rank with \(m > n\).
+   The linear least squares problem is to find a vector \(x \in \mathbb{R}^n\) that minimizes \(||Ax-b||_2^2\), where \(b \in \mathbb{R}^m\) is a given vector and \(A \in \mathbb{R}^{m \times n}\) is a given matrix of full rank with \(m > n\).
    </p>
    <p>
    Some notes:
    <ul>
-      <li>\(||v||_2^2 = v_1^2 + v_2^2 + \ldots + v_n^2\) for a vector \(v\), or for the complex case \(||v||_2^2 = v_1 \bar{v}_1 + v_2 \bar{v}_2 + \ldots + v_n \bar{v}_n\).
-      <li>Entries of A and b can be real or complex.</li>
+      <li>\(x \in \mathbb{R}^n\) means \(x\) is a vector of size \(n\) with real number entries.</li>
+      <li>\(A \in \mathbb{R}^{m \times n}\) means \(A\) is a matrix of size \(m \times n\) with real number entries.</li>
+      <li>\(|| \cdot ||_2\) is called the 2-norm and is defined as: \(||v||_2^2 = v_1^2 + v_2^2 + \ldots + v_n^2\) for a vector \(v\).</li>
       <li>\(m > n\) means A is a tall skinny matrix, x is a short vector, and b is a tall vector.</li>
-      <li>Hence, there are too few unknowns in x to solve Ax = b, so we have to settle for getting as close as possible.  Hence the minimization problem.</li>
+      <li>There are too few unknowns in x to solve Ax = b, so we have to settle for getting as close as possible.  Hence the minimization problem.</li>
       <li>A is of full rank means all the columns of A are linearly independent.  The purpose of this is to have only one solution to the problem.</li>
    </ul>
    <p>
+   The least squares problem works for complex numbers as well, but I always think in real numbers so everything in this article will assume real numbers.
+   </p>
+
+
    <h3><em>Example</em></h3>
    <p>
    An example of a linear least squares problem is a polynomial fit (regression) problem.
@@ -63,6 +73,7 @@
    \end{equation}
    </p>
 
+
    <h2>The normal equations</h2>
    <p>
    One multivariable calculus technique to solve the minimization is to take the partial derivative with respect to \(x_1, x_2, \ldots, x_n\), set all the equations to zero, and solve for \(x_1, x_2, \ldots, x_n\).
@@ -74,9 +85,8 @@
    The problem with this formulation is that it squares the condition number of the problem.
    </p>
    <p>
-   Briefly, the condition number is the largest eigenvalue in absolute value divided by the smallest eigenvalue in absolute value.
-   It tells you how numerically solvable the problem is.
-   A big condition number means the problem is difficult to solve numerically.
+   Briefly, the condition number is the largest eigenvalue in absolute value divided by the smallest eigenvalue in absolute value (or equivalently the largest singular value divided by the smallest singular value).
+   A big condition number means the problem is difficult to solve numerically (i.e. on a computer with finite precision).
    Squaring a condition number can make a problem impossible to solve in some cases.
    </p>
    <p>
@@ -89,12 +99,10 @@
    </p>
 
 
-
    <h2>The QR decomposition</h2>
    <p>
    The QR decomposition of a matrix \(A \in \mathbb{R}^{m \times n}\) is \(A = QR\) where \(Q \in \mathbb{R}^{m \times m}\) is an orthogonal matrix and \(R \in \mathbb{R}^{m \times n}\) is an upper triangular matrix.
-   If A contains imaginary numbers then Q is unitary.
-   For the case we care about, \(m > n\), R has the form
+   For the case we care about, \(m > n\), \(R\) has the form
    \begin{equation}
    \begin{pmatrix}
    R_1 \\
@@ -105,30 +113,27 @@
    0
    \end{pmatrix}
    \end{equation}
-   where R_1 is n by n and R_2 is m-n by n zero matrix.
+   where \(R_1 \in \mathbb{R}^{n \times n}\) is an upper triangular matrix and \(R_2\) is the \((m-n) \times n\) zero matrix.
    </p>
-   <p>Some notes:
-   <ul>
-      <li>Q orthogonal means \(Q^T Q = Q Q^T = I\).</li>
-      <li>Q unitary means \(Q^* Q = Q Q^* = I, \quad Q^* = \bar{Q}^T\).</li>
-   </ul>
+   <p>
+   <em>Definition</em>: Q orthogonal means \(Q^T Q = Q Q^T = I\).
    </p>
-   <h3>Solving the least squares problem with QR decomposition</h3>
    <p>
    The nice thing about an orthogonal matrix is it can move in and out of the 2 norm.
-   Specifically, for any vector v,
+   Specifically, for any vector \(v\),
    \begin{equation}
-   ||Qv||_2 = ||Q|| \; ||v||_2 = ||v||_2.
+   ||Qv||_2 = ||Q||_2 \; ||v||_2 = ||v||_2.
    \end{equation}
-   Proof:
+   </p>
+   <h4><em>Proof</em></h4>
    \begin{equation}
-   ||Qv||_2 \leq ||Q|| \; ||v||_2 = ||v||_2.
+   ||Qv||_2 \leq ||Q||_2 \; ||v||_2 = ||v||_2.
    \end{equation}
    \begin{equation}
-   ||v||_2 = ||Q^T Q v||_2 \leq ||Q^T|| \; ||Qv||_2 = ||Qv||_2.
+   ||v||_2 = ||Q^T Q v||_2 \leq ||Q^T||_2 \; ||Qv||_2 = ||Qv||_2.
    \end{equation}
-   QED
 
+   <h3>Solving the least squares problem with QR decomposition</h3>
    <p>
    Now for the method of solving the least squares problem.
    \begin{align}||Ax - b||_2 &= ||QRx - b||_2 \\
@@ -138,8 +143,9 @@
    \begin{equation}
    ||Rx - \tilde{b}||_2^2.
    \end{equation}
-   Using the splitting for R given earlier, we have
+   Using the splitting for \(R\) given earlier, we have
    \begin{equation}
+   Rx - \tilde b = 
    \begin{pmatrix}
    R_1 \\ 0
    \end{pmatrix}
@@ -152,12 +158,24 @@
    \begin{equation}
    ||R_1 x - \tilde{b}_1||_2^2 + ||\tilde{b}_2||_2^2.
    \end{equation}
-   We can make the first norm zero by solving the square triangular system.
-   The second norm cannot be changed and is the error.
+   The solution to the least squares problem is given by solving
+   \begin{equation}
+   R_1 x = \tilde{b}_1
+   \end{equation}
+   This makes the first norm zero, which is the best we can do since the second norm is not dependent on \(x\).
    </p>
+
+
+   <h4>Implementation</h4>
    <p>
-   One implementation detail about this is that for a tall skinny matrix, one can perform a <em>skinny</em> QR decomposition.
-   This is given by A = QR where Q is m by n (tall and skinny) and R is n by n (a small square matrix.
+   One implementation detail is that for a tall skinny matrix, one can perform a <em>skinny</em> QR decomposition.
+   This is given by \(A = Q_1 R_1\) where \(Q_1 \in \mathbb{R}^{m \times n}\) is a tall, skinny matrix and \(R_1 \in \mathbb{R}^{n \times n}\) is a small square matrix.
+   Contrast this with the original QR decomposition and we find that: (i) \(Q_1\) is the first \(n\) columns of \(Q\), and (ii) \(R_1\) is the first n rows of \(R\) which is the same as the definition of \(R_1\) above.
+   Further \(\tilde b_1 = Q_1^T b\), so \(x\) is found by solving
+   \begin{equation}
+   R_1 x = Q_1^T b.
+   \end{equation}
+   The reason for using the skinny QR decomposition, is that it can be much faster to compute.
    </p>
 </body>
 </html>
