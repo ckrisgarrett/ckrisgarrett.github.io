@@ -33,7 +33,6 @@
    </ul>
    <p>
    The least squares problem and all the following discussion work with complex numbers as well with a few tweaks.
-   But, I always think in real numbers so everything in this article will assume real numbers.
    </p>
 
 
@@ -95,7 +94,7 @@
    One way to prove the condition number is squared is to take the singular value decomposition: \(A = U \Sigma V^T\).
    Then 
    \begin{equation}
-   A^T A = V^T \Sigma^T \Sigma V,
+   A^T A = V \Sigma^T \Sigma V^T,
    \end{equation}
    which shows the singular values have been squared and hence the condition number is squared.
    </p>
@@ -103,7 +102,7 @@
    For some problems, it doesn't matter if the condition number is squared.
    For the example above of a quadratic regression, if the data is highly linear, the condition number will be high and the QR decomposition may be required.
    But if the data is clearly not linear and more quadratic, the condition number of \(A\) will be small and you can use the normal equations.
-   However, as you go to higher polynomial degrees, the condition number will get worse.
+   However, as you go to higher polynomial degrees, the condition number will increase.
    </p>
 
 
@@ -140,7 +139,7 @@
    \begin{equation}
    ||v||_2 = ||Q^T Q v||_2 \leq ||Q^T||_2 \; ||Qv||_2 = ||Qv||_2.
    \end{equation}
-   Note: I used the fact the 2-norm of an orthogonal matrix is 1.
+   <em>Note:</em> I used the fact the 2-norm of an orthogonal matrix is 1.
 
    <h3>Solving the least squares problem with QR decomposition</h3>
    <p>
