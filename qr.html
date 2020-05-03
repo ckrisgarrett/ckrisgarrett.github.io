@@ -24,15 +24,16 @@
    <p>
    Some notes:
    <ul>
-      <li>\(x \in \mathbb{R}^n\) means \(x\) is a vector of size \(n\) with real number entries.</li>
-      <li>\(A \in \mathbb{R}^{m \times n}\) means \(A\) is a matrix of size \(m \times n\) with real number entries.</li>
-      <li>\(|| \cdot ||_2\) is called the 2-norm and is defined as: \(||v||_2^2 = v_1^2 + v_2^2 + \ldots + v_n^2\) for a vector \(v\).</li>
-      <li>\(m > n\) means A is a tall skinny matrix, x is a short vector, and b is a tall vector.</li>
-      <li>There are too few unknowns in x to solve Ax = b, so we have to settle for getting as close as possible.  Hence the minimization problem.</li>
-      <li>A is of full rank means all the columns of A are linearly independent.  The purpose of this is to have only one solution to the problem.</li>
+      <li><em>Definition:</em> \(x \in \mathbb{R}^n\) means \(x\) is a vector of size \(n\) with real number entries.</li>
+      <li><em>Definition:</em> \(A \in \mathbb{R}^{m \times n}\) means \(A\) is a matrix of size \(m \times n\) with real number entries.</li>
+      <li><em>Definition:</em> \(|| \cdot ||_2\) is called the 2-norm and is defined as: \(||v||_2^2 = v_1^2 + v_2^2 + \ldots + v_n^2\) for a vector \(v\).</li>
+      <li>\(m > n\) implies \(A\) is a tall skinny matrix, \(x\) is a short vector, and \(b\) is a tall vector.</li>
+      <li>There are too few unknowns in \(x\) to solve \(Ax = b\), so we have to settle for getting as close as possible.  Hence the minimization problem.</li>
+      <li><em>Definition:</em> \(A\) is of full rank means all the columns of \(A\) are linearly independent.  The purpose of this is to have only one solution to the problem.</li>
    </ul>
    <p>
-   The least squares problem works for complex numbers as well, but I always think in real numbers so everything in this article will assume real numbers.
+   The least squares problem and all the following discussion work with complex numbers as well with a few tweaks.
+   But, I always think in real numbers so everything in this article will assume real numbers.
    </p>
 
 
@@ -85,8 +86,9 @@
    The problem with this formulation is that it squares the condition number of the problem.
    </p>
    <p>
-   Briefly, the condition number is the largest eigenvalue in absolute value divided by the smallest eigenvalue in absolute value (or equivalently the largest singular value divided by the smallest singular value).
-   A big condition number means the problem is difficult to solve numerically (i.e. on a computer with finite precision).
+   Briefly, the condition number is the largest singular value divided by the smallest singular value.
+   If you don't know what that means, go read about singular values because singular values are cool.
+   Anyhow, a big condition number means the problem is difficult to solve numerically, i.e. on a computer with finite precision.
    Squaring a condition number can make a problem impossible to solve in some cases.
    </p>
    <p>
@@ -96,6 +98,12 @@
    A^T A = V^T \Sigma^T \Sigma V,
    \end{equation}
    which shows the singular values have been squared and hence the condition number is squared.
+   </p>
+   <p>
+   For some problems, it doesn't matter if the condition number is squared.
+   For the example above of a quadratic regression, if the data is highly linear, the condition number will be high and the QR decomposition may be required.
+   But if the data is clearly not linear and more quadratic, the condition number of \(A\) will be small and you can use the normal equations.
+   However, as you go to higher polynomial degrees, the condition number will get worse.
    </p>
 
 
@@ -132,13 +140,14 @@
    \begin{equation}
    ||v||_2 = ||Q^T Q v||_2 \leq ||Q^T||_2 \; ||Qv||_2 = ||Qv||_2.
    \end{equation}
+   Note: I used the fact the 2-norm of an orthogonal matrix is 1.
 
    <h3>Solving the least squares problem with QR decomposition</h3>
    <p>
    Now for the method of solving the least squares problem.
-   \begin{align}||Ax - b||_2 &= ||QRx - b||_2 \\
-   &= ||Q^T Q Rx - Q^Tb||_2 \\
-   &= ||Rx - Q^Tb||_2 \end{align}
+   \begin{align}||Ax - b||_2^2 &= ||QRx - b||_2^2 \\
+   &= ||Q^T Q Rx - Q^Tb||_2^2 \\
+   &= ||Rx - Q^Tb||_2^2 \end{align}
    To minimize the last expression, write \(\tilde{b} = Q^T b\) and minimize
    \begin{equation}
    ||Rx - \tilde{b}||_2^2.
@@ -160,7 +169,7 @@
    \end{equation}
    The solution to the least squares problem is given by solving
    \begin{equation}
-   R_1 x = \tilde{b}_1
+   R_1 x = \tilde{b}_1.
    \end{equation}
    This makes the first norm zero, which is the best we can do since the second norm is not dependent on \(x\).
    </p>
