@@ -1,0 +1,122 @@
+<html>
+<head>
+   <link rel="stylesheet" href="main.css">
+   <title>Installing Intel Compiler</title>
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+   <h1>Installing The Intel Compiler</h1>
+   <p>
+   Why would I write about installing the Intel compiler you ask?
+   If you have ever had to install multiple versions of this compiler, you would know.
+   It will make you swear.
+   <em>A lot.</em>
+   So I am writing all the issues I know about in the hopes of saving someone hours of frustration.
+   </p>
+   <h2>Issue #1</h2>
+   <p>
+   Typically in HPC, when installing software, you install to a directory structure like: <code>/software/intel/version</code>.
+   However, the Intel compiler installer saves where you installed the first version and will try to save subsequent versions in the <em>same folder</em>.
+   WHY?!?
+   </p>
+   <p>
+   In a standard install on Linux, Intel uses rpm packages and in subsequent installs will look to see if any such rpm packages exist.
+   Why? To make all sys admins angry? To add cursing to the world?
+   Nobody knows.
+   So how do you get around this?
+   You can find all the rpms via <code>rpm -qa | grep '^intel'</code> and then erase the rpms from the database via <code>rpm -e --justdb</code>.
+   This is super painful to have to do for every install and difficult to script correctly.
+   </p>
+   <p>
+   But, there is another way.
+   You can do a silent install: <code>./install --silent silent.cfg</code>.
+   There is an example configuration file in the base directory after untarring the install tarball.
+   The trick at this point is to add a "secret-ish" command to not use rpms (used for installing on Debian/Ubuntu).
+   The line to add is <code>INSTALL_MODE=NONRPM</code>.
+   You can now install another version of the Intel compiler in any directory you wish.
+   </p>
+   <p>
+   But...
+   Just to make everyone angrier, this still installs information about the packages Intel has installed.
+   This does not affect different versions of installations (at least between major versions 17 and 19), but it does affect removal and reinstallation.
+   If you simply remove the install directory, the information Intel saved is still around, and it will not let you install the same version again without removal of the extra stuff it hid on your file system.
+   So you will also have to remove the following files if they exist: <code>/opt/intel/intel_sdp_products.db</code>, <code>/opt/intel/.pset</code>, <code>/opt/intel/.intel-*</code>, and <code>~/intel</code>.
+   </p>
+   <p>
+   You can also run the <code>uninstall.sh</code> script in the install directory.
+   This also seems to work for getting rid of the extra files Intel installs on your file system.
+   Of course, uninstall script is found in different places depending on the major version of the Intel compiler you install.
+   Find it with <code>find . | grep uninstall.sh</code>.
+   </p>
+   <p>
+   And voila!
+   Now you can install into <code>/software/intel/version</code> for each version of the Intel compiler you want.
+   </p>
+   <h2>Issue #2</h2>
+   <p>
+   Yet another layer of hell is creating a module file for the Intel compiler.
+   If you aren't familiar with modules but you use multiple versions of software, I suggest you look it up.
+   It's amazing.
+   You type <code>module load intel/17.8</code> and BAM!
+   When you type <code>icc</code>, the 17.8 version of the Intel C compiler is used.
+   </p>
+   <p>
+   With GCC, all the module file has to do is add a directory to the following environment variables: <code>PATH</code>, <code>LD_LIBRARY_PATH</code>, and <code>MANPATH</code>.
+   Intel, in their infinite wisdom, decided on needing to create a script that needs to be sourced and adds 100 environment variables.
+   Intel's solution to creating a module file is not to supply one, but to have the sysadmin use a perl script called <code>env2</code> to change the bash script into a module file!
+   </p>
+   <p>
+   First, kuddos to the people who made env2.
+   It works amazingly well.
+   Second, bad Intel!
+   If I had a newspaper to roll up and you had a nose, I would hit your nose with the newspaper.
+   </p>
+   <h2>Issue #3</h2>
+   <p>
+   At this point, I thought I was done.
+   I had solved all my problems installing the Intel compiler.
+   But the people at Intel were still smarter than me.
+   I created a script called <code>install</code>, to install the Intel compiler.
+   This gave me the following error.
+   </p>
+   <p>
+   <code>
+   Another instance of the installation program has been detected.
+   Please quit the other instance and try again.
+   </code>
+   </p>
+   <p>
+   <em>WTF?!?!?</em>
+   I finally realized the Intel installer probably does a fancier version of <code>ps | grep install</code> to see if it is already running.
+   But it checks only against the name <code>install</code>?
+   As though I, as a Linux user, couldn't have another process separate from Intel called <code>install</code>?
+   ARRRGGGGHHHHHH!!!!!!
+   I renamed the script to <code>install-intel</code> and <em>it worked</em>!
+   </p>
+   <h2>The End</h2>
+   <p>
+   So, that's my story.
+   I hope it is useful to someone else in the future.
+   To conclude, here is an abbreviated version of the script that took me <em>soooo long</em> to make.
+   <pre>
+   $!/bin/bash
+
+   # Install compiler
+   tar xvf $SRC_FULLPATH
+   cd parallel*
+   ./install.sh --silent ../silent.cfg
+
+   # Install module file
+   cd ..
+   echo "#%Module 1.0" > 19.5
+   echo "conflict intel gcc" >> 19.5
+   echo " " >> 19.5
+   echo "### Stuff made by env2 script ###" >> 19.5
+   perl env2 -from bash -to modulecmd \
+      "/software/intel/19.5/bin/compilervars.sh intel64" >> 19.5
+   cp 19.5 /modules/intel
+   </pre>
+   Don't forget to add <code>INSTALL_MODE=NONRPM</code> to the configuration file.
+   </p>
+</body>
+</html>
