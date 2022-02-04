@@ -1,0 +1,48 @@
+<html>
+<head>
+   <link rel="stylesheet" href="main.css">
+   <title>My Favorite Commands</title>
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+   <h1>These are a few of my favorite commands ...</h1>
+   <p><em>I'm imagining Julie Andrews singing this :)</em></p>
+   <hr>
+   <dl>
+      <dt><pre>tail -f [filename]</pre></dt>
+      <dd>
+         The tail command shows the last few lines of a file.
+         When you run with the <pre>-f</pre> flag, tail keeps running and updates when the file is updated.
+         This is commonly used when you want to monitor the progress of a background task.
+         Press <pre>Ctrl-c</pre> to stop output.
+      </dd>
+      <dt><pre>cat [filename] | awk '{print $2 " " $3 " " $4}'</pre></dt>
+      <dd>
+         This will print the 2nd, 3rd, and 4th columns of a file.
+         Columns are delimited by whitespace.
+         Different delimiters can be given with the <pre>-F</pre> flag.
+      </dd>
+      <dt><pre>find . | grep [regex]</pre></dt>
+      <dd>
+         This finds all files in this directory and subdirectories that matches the regular expression.
+      </dd>
+      <dt><pre>screen</pre></dt>
+      <dd>
+         Have you ever started a linux command that takes 5 hours and then 4 hours in your terminal closes and the command stops?
+         I have, and I swore at my computer.
+         If you run screen, you can run the command and then detach from the screen and log out of the terminal without the command stopping.
+         Amaze Balls!
+         To do this, run: screen; [command]; Ctrl-a d.
+         To resume screen: screen -r.
+         To see the open screen sessions: screen -ls.
+         To exit a screen session: exit.
+      </dd>
+      <dt><pre>sed -i s/string_to_replace/replacement_string/g [filename]</pre></dt>
+      <dd>
+         This replaces all occurences of 'string_to_replace' with 'replacement_string' in the file.
+         You can do the replacement in multiple files like your entire codebase if [filename] = src/*.cpp.
+      </dd>
+      <dt><pre>watch -n [seconds] [command]</pre></dt>
+   </dl>
+</body>
+</html>
