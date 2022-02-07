@@ -14,7 +14,7 @@
    I thought I had a good example of its use, but the optimizer for gcc has gotten smarter.
    I'll show my initial journey of failing to find an example where the restrict keyword yields faster code.
    Later, I plan to find an example that really shows a difference in speed.
-   <h2>Example: sum two vectors</h2>
+   <h2>Example: sum of two vectors</h2>
    <p>Here's an example function in C that saves the sum of two vectors.</p>
    <pre>
    void sum(size_t n, double *a, double *b, double *c)
@@ -30,17 +30,18 @@
    c[2] = a[2] + b[2]
    </pre>
    <p>
-   Because the compiler is just sent pointers to the arrays, it can't safely parallelize this code and use vector instructions.
+   Because the compiler only sees pointers to the arrays, it can't safely parallelize this code and use vector instructions.
    Why?
    Imagine that c points to memory location a[1].
    Then the first line above will change c[0] which will also change a[1].
    Hence, computing the first line affects the computation of the second line.
-   Then, computing the second line, affect the third, and so on.
+   Then, computing the second line, affects the third, and so on.
    </p>
    <p>
    This is called an aliasing problem.
-   To tell the compiler that no aliasing exists, you use the keyword <em>restrict</em>.
+   To tell the compiler that a[i], b[j], and c[k] cannot equal each other, regardless of the indices, i, j, and k, you use the keyword <em>restrict</em>.
    Below is the same function in C using the restrict keyword.
+   <em>Note: C++ does not have restrict in the standard, but every compiler has some version of it like __restrict__.</em>
    </p>
    <pre>
    void rsum(size_t n, double * restrict a, double * restrict b, double * restrict c)
@@ -52,17 +53,17 @@
    <p>
    The restrict keyword allows the compiler to vectorize the for loop and sum 2 or more values of the array in parallel.
    <em>HOWEVER</em>, the optimizer in gcc was more clever than I realized.
-   Both versions of the function are vectorized with the compiler flags <code>-O3 -march=native</code> using gcc 9.2.0.
+   Both <code>sum</code> and <code>rsum</code> are vectorized with the compiler flags <code>-O3 -march=native</code> using gcc 9.2.0.
    </p>
    <p>
    The function <code>rsum</code> is vectorized easily enough.
-   To vectorize the function <code>sum</code>, gcc inserts a vectorized and non-vectorized version of the code and checks to see if the pointers point to memory locations far enough apart to allow vectorization.
+   To vectorize the function <code>sum</code>, gcc inserts a vectorized and non-vectorized version of the code and inserts the equivalent of an if statement to see if the pointers point to memory locations far enough apart to allow vectorization.
    </p>
    <p>
    I confirmed this in two ways.
    First, I read the assembly output of both functions using the <code>-S</code> flag.
    Second, I used the flag <code>-fopt-info-vec-all</code> to get vectorization information.
-   Here is the output from sum, and rsum.
+   Here is the output of that second flag from <code>sum</code> and <code>rsum</code>.
    </p>
    <pre>
    sum.c:4:4: optimized: loop vectorized using 32 byte vectors
@@ -73,11 +74,11 @@
    rsum.c:2:6: note: vectorized 1 loops in function.
    </pre>
    <p>
-   Notice how sum.c has an extra caveat about its vectorization due to possible aliasing.
+   Notice how sum.c has an extra caveat about its vectorization due to "possible aliasing".
    </p>
    <p>
    I ran both functions 1000 times, with 10 million elements in the arrays.
-   Both functions took about 15 seconds to run on my laptop with no clear winner in timings.
+   Both <code>sum</code> and <code>rsum</code> took about 15 seconds to run on my laptop with no clear winner in timings.
    The source code can be found <a href=https://github.com/ckrisgarrett/optimize_examples/tree/master/restrict>here</a> on github.
    </p>
    <h3><em>To be continued ...</em></h3>
